@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gossip Girl - XOXO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* -------------------------------------------------------------------------- */
+        /* CSS                                    */
+        /* -------------------------------------------------------------------------- */
+        :root {
+            --color-black: #0A0A0A;
+            --color-dark-grey: #191919;
+            --color-grey: #3C3C3C;
+            --color-light-grey: #969696;
+            --color-gold: #D4AF37;
+            --color-white: #F0F0F0;
+            --color-red: #C83232;
+            --font-family: 'Cormorant Garamond', serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--color-black);
+            color: var(--color-white);
+            font-family: var(--font-family);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app-container {
+            width: 800px;
+            height: 600px;
+            background-color: var(--color-dark-grey);
+            border: 1px solid var(--color-grey);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Títulos e Texto */
+        .title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* Botões */
+        button {
+            width: 300px;
+            padding: 12px;
+            font-family: var(--font-family);
+            font-size: 1.5rem;
+            color: var(--color-white);
+            background-color: var(--color-grey);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--color-gold);
+            color: var(--color-black);
+        }
+
+        button.secondary {
+            background-color: transparent;
+            border: 2px solid var(--color-grey);
+        }
+        button.secondary:hover {
+            background-color: var(--color-grey);
+            color: var(--color-white);
+        }
+
+        .menu-buttons button {
+            margin: 10px 0;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .button-group button {
+            width: 48%;
+        }
+
+        /* Formulários */
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+            color: var(--color-light-grey);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="search"],
+        textarea {
+            background-color: transparent;
+            border: 2px solid var(--color-grey);
+            border-radius: 5px;
+            padding: 10px;
+            color: var(--color-white);
+            font-size: 1.2rem;
+            font-family: var(--font-family);
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-gold);
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        #char-counter {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--color-light-grey);
+            height: 1rem;
+        }
+
+        .error-message {
+            color: var(--color-red);
+            text-align: center;
+            margin-top: 15px;
+            height: 1.2rem;
+            font-size: 1.1rem;
+        }
+
+        /* Estilos da Tela de Introdução */
+        #intro-screen {
+            background-color: var(--color-black);
+        }
+        #intro-phrase {
+            font-size: 1.8rem;
+            color: var(--color-gold);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+        }
+
+        /* Estilos da Tela do Feed */
+        #feed-screen {
+            padding: 0;
+            justify-content: flex-start;
+        }
+
+        #feed-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: var(--color-black);
+            flex-shrink: 0;
+        }
+        #feed-header button {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 1.1rem;
+        }
+        #feed-header input {
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+
+        #feed-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        /* Estilização da barra de rolagem */
+        #feed-container::-webkit-scrollbar { width: 8px; }
+        #feed-container::-webkit-scrollbar-track { background: var(--color-dark-grey); }
+        #feed-container::-webkit-scrollbar-thumb { background: var(--color-grey); border-radius: 4px; }
+        #feed-container::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
+
+
+        /* Estilos do Cartão de Post */
+        .post-card {
+            background-color: var(--color-black);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+        }
+        .post-card.pinned {
+            border-color: var(--color-gold);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .post-author {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-light-grey);
+        }
+        .post-author.admin {
+            color: var(--color-gold);
+        }
+
+        .post-time {
+            font-size: 1rem;
+            color: var(--color-grey);
+        }
+
+        .post-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap; /* Preserva quebras de linha e faz o texto quebrar */
+            word-wrap: break-word;
+        }
+
+        .post-tags {
+            margin-bottom: 15px;
+        }
+        .post-tags span {
+            font-style: italic;
+            color: var(--color-gold);
+            margin-right: 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--color-grey);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .post-actions .user-actions, .post-actions .admin-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--color-grey);
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            transition: color 0.2s;
+            padding: 0;
+            width: auto;
+        }
+        .action-btn.like:hover { color: var(--color-gold); }
+        .action-btn.report:hover { color: var(--color-red); }
+        .action-btn.pin:hover { color: var(--color-gold); }
+        .action-btn.delete:hover { color: var(--color-red); }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+
+        <div id="intro-screen" class="screen">
+            <p id="intro-phrase"></p>
+        </div>
+
+        <div id="menu-screen" class="screen hidden">
+            <h1 class="title">Gossip Girl</h1>
+            <div class="menu-buttons">
+                <button id="login-admin-btn">Login Admin</button>
+                <button id="anonymous-post-btn">Postagem Anônima</button>
+                <button id="public-feed-btn">Feed Público</button>
+            </div>
+        </div>
+
+        <div id="login-screen" class="screen hidden">
+            <h1 class="title">Acesso Restrito</h1>
+            <div class="form-container">
+                <label for="username">Usuário:</label>
+                <input type="text" id="username" name="username">
+                
+                <label for="password">Senha:</label>
+                <input type="password" id="password" name="password">
+
+                <p id="login-error" class="error-message"></p>
+
+                <div class="button-group">
+                    <button id="login-submit-btn">Entrar</button>
+                    <button id="login-back-btn" class="secondary">Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="post-screen" class="screen hidden">
+            <h1 id="post-title" class="title">Nova Postagem</h1>
+            <div class="form-container">
+                <label for="post-text">Sua dica, rumor ou flagra:</label>
+                <textarea id="post-text" rows="8" maxlength="400"></textarea>
+                <div id="char-counter">0/400</div>
+
+                <label for="post-tags">Tags (opcional, separadas por #): ex: #Rumor #Uptown</label>
+                <input type="text" id="post-tags" placeholder="#tag1 #tag2">
+                
+                <div class="button-group">
+                    <button id="post-submit-btn">Enviar</button>
+                    <button id="post-back-btn" class="secondary">Voltar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="feed-screen" class="screen hidden">
+            <header id="feed-header">
+                <button id="feed-back-btn" class="secondary">Voltar</button>
+                <input type="search" id="search-box" placeholder="Buscar por texto ou #tag...">
+                <button id="feed-new-post-btn" class="hidden">Nova Postagem</button>
+            </header>
+            <main id="feed-container">
+                </main>
+        </div>
+
+    </div>
+
+    <script>
+        /* -------------------------------------------------------------------------- */
+        /* JAVASCRIPT                                 */
+        /* -------------------------------------------------------------------------- */
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- GERENCIAMENTO DE ESTADO ---
+            let isAdmin = false;
+            let telaAnterior = 'menu-screen'; // Para lidar com a lógica do botão 'voltar'
+
+            // --- REFERÊNCIAS AOS ELEMENTOS DO DOM ---
+            const telas = {
+                intro: document.getElementById('intro-screen'),
+                menu: document.getElementById('menu-screen'),
+                login: document.getElementById('login-screen'),
+                post: document.getElementById('post-screen'),
+                feed: document.getElementById('feed-screen'),
+            };
+            const introPhraseEl = document.getElementById('intro-phrase');
+
+            // --- GERENCIAMENTO DE DADOS (usando localStorage) ---
+            const DATA_FILE = "gg_data";
+
+            function loadData() {
+                try {
+                    const data = localStorage.getItem(DATA_FILE);
+                    return data ? JSON.parse(data) : { posts: [] };
+                } catch (error) {
+                    console.error("Não foi possível carregar os dados do localStorage:", error);
+                    return { posts: [] };
+                }
+            }
+
+            function saveData(data) {
+                localStorage.setItem(DATA_FILE, JSON.stringify(data));
+            }
+
+            function addPost(author, text, tags) {
+                const data = loadData();
+                const newPost = {
+                    author: author,
+                    text: text,
+                    tags: tags.split('#').map(tag => tag.trim()).filter(Boolean),
+                    timestamp: Date.now(), // Usa o timestamp em milissegundos
+                    likes: 0,
+                    reports: 0,
+                    pinned: false
+                };
+                data.posts.push(newPost);
+                saveData(data);
+            }
+
+            function togglePinPost(timestamp) {
+                const data = loadData();
+                const post = data.posts.find(p => p.timestamp === timestamp);
+                if (post) post.pinned = !post.pinned;
+                saveData(data);
+            }
+
+            function deletePost(timestamp) {
+                let data = loadData();
+                data.posts = data.posts.filter(p => p.timestamp !== timestamp);
+                saveData(data);
+            }
+
+            function likePost(timestamp) {
+                const data = loadData();
+                const post = data.posts.find(p => p.timestamp === timestamp);
+                if (post) post.likes = (post.likes || 0) + 1;
+                saveData(data);
+            }
+
+            function reportPost(timestamp) {
+                const data = loadData();
+                const post = data.posts.find(p => p.timestamp === timestamp);
+                if (post) post.reports = (post.reports || 0) + 1;
+                saveData(data);
+            }
+
+            // --- LÓGICA DA INTERFACE E TELAS ---
+
+            function showScreen(screenId) {
+                Object.values(telas).forEach(screen => screen.classList.add('hidden'));
+                if (telas[screenId]) {
+                    telas[screenId].classList.remove('hidden');
+                }
+            }
+
+            // Lógica da Tela de Introdução
+            async function runIntro() {
+                const frases = [
+                    { text: "Bom dia, Upper East Siders.", duration: 2000 },
+                    { text: "Gossip Girl aqui,", duration: 1500 },
+                    { text: "Sua única fonte sobre a vida escandalosa...", duration: 3000 },
+                    { text: "...da elite de Manhattan.", duration: 2000 },
+                    { text: "Vocês sabem que me amam...", duration: 2000 },
+                    { text: "XOXO, Gossip Girl.", duration: 3000 }
+                ];
+
+                const fadeDuration = 500;
+                
+                const skipIntro = () => {
+                    document.removeEventListener('click', skipIntro);
+                    document.removeEventListener('keydown', skipIntro);
+                    showScreen('menu');
+                };
+                document.addEventListener('click', skipIntro);
+                document.addEventListener('keydown', skipIntro);
+
+                for (const frase of frases) {
+                    introPhraseEl.textContent = frase.text;
+                    introPhraseEl.style.opacity = 1;
+                    await new Promise(resolve => setTimeout(resolve, frase.duration - fadeDuration));
+                    introPhraseEl.style.opacity = 0;
+                    await new Promise(resolve => setTimeout(resolve, fadeDuration));
+                }
+                
+                skipIntro(); // Vai para o menu quando a introdução termina
+            }
+
+            // Lógica da Tela de Feed
+            function renderFeed() {
+                const feedContainer = document.getElementById('feed-container');
+                feedContainer.innerHTML = ''; // Limpa posts existentes
+
+                const data = loadData();
+                // Ordena por fixado (true > false) e depois por timestamp (mais novo primeiro)
+                let posts = data.posts.sort((a, b) => (b.pinned - a.pinned) || (b.timestamp - a.timestamp));
+
+                const searchTerm = document.getElementById('search-box').value.toLowerCase();
+                if (searchTerm) {
+                    posts = posts.filter(post => 
+                        post.text.toLowerCase().includes(searchTerm) ||
+                        post.tags.some(tag => `#${tag.toLowerCase()}`.includes(searchTerm))
+                    );
+                }
+
+                if (posts.length === 0) {
+                    feedContainer.innerHTML = `<p style="text-align: center; color: var(--color-light-grey);">Nenhuma fofoca por aqui. Por enquanto...</p>`;
+                    return;
+                }
+
+                posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+                    if (post.pinned) card.classList.add('pinned');
+
+                    const authorClass = post.author === 'Gossip Girl' ? 'admin' : '';
+                    const adminButtons = isAdmin ? `
+                        <div class="admin-actions">
+                            <button class="action-btn pin" data-timestamp="${post.timestamp}">${post.pinned ? 'Desfixar' : 'Fixar'}</button>
+                            <button class="action-btn delete" data-timestamp="${post.timestamp}">Apagar</button>
+                        </div>
+                    ` : '';
+
+                    card.innerHTML = `
+                        <div class="post-header">
+                            <h3 class="post-author ${authorClass}">${post.author}</h3>
+                            <span class="post-time">${timeAgo(post.timestamp)}</span>
+                        </div>
+                        <p class="post-text">${post.text}</p>
+                        <div class="post-tags">
+                            ${post.tags.map(tag => `<span>#${tag}</span>`).join('')}
+                        </div>
+                        <div class="post-actions">
+                            <div class="user-actions">
+                                <button class="action-btn like" data-timestamp="${post.timestamp}">❤️ Curtir (${post.likes || 0})</button>
+                                <button class="action-btn report" data-timestamp="${post.timestamp}">🚩 Denunciar</button>
+                            </div>
+                            ${adminButtons}
+                        </div>
+                    `;
+                    feedContainer.appendChild(card);
+                });
+            }
+
+            // Função utilitária para tempo relativo
+            function timeAgo(timestamp) {
+                if (!timestamp) return "agora";
+                const seconds = Math.floor((Date.now() - timestamp) / 1000);
+                if (seconds < 60) return `${seconds}s`;
+                const minutes = Math.floor(seconds / 60);
+                if (minutes < 60) return `${minutes}m`;
+                const hours = Math.floor(minutes / 60);
+                if (hours < 24) return `${hours}h`;
+                const days = Math.floor(hours / 24);
+                return `${days}d`;
+            }
+
+            // --- EVENT LISTENERS (OUVINTES DE EVENTOS) ---
+
+            // Menu Principal
+            document.getElementById('login-admin-btn').addEventListener('click', () => {
+                telaAnterior = 'menu';
+                showScreen('login');
+            });
+            document.getElementById('anonymous-post-btn').addEventListener('click', () => {
+                isAdmin = false;
+                telaAnterior = 'menu';
+                document.getElementById('post-title').textContent = 'Nova Postagem como Anônimo';
+                showScreen('post');
+            });
+            document.getElementById('public-feed-btn').addEventListener('click', () => {
+                isAdmin = false;
+                telaAnterior = 'menu';
+                document.getElementById('feed-new-post-btn').classList.add('hidden');
+                renderFeed();
+                showScreen('feed');
+            });
+            
+            // Tela de Login
+            document.getElementById('login-submit-btn').addEventListener('click', () => {
+                const user = document.getElementById('username').value;
+                const pass = document.getElementById('password').value;
+                if (user === 'GossipGirl' && pass === 'xoxo') {
+                    isAdmin = true;
+                    telaAnterior = 'menu';
+                    document.getElementById('feed-new-post-btn').classList.remove('hidden');
+                    document.getElementById('login-error').textContent = '';
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                    renderFeed();
+                    showScreen('feed');
+                } else {
+                    document.getElementById('login-error').textContent = 'Usuário ou senha inválidos.';
+                }
+            });
+            document.getElementById('login-back-btn').addEventListener('click', () => showScreen(telaAnterior));
+
+            // Tela de Postagem
+            const postTextInput = document.getElementById('post-text');
+            postTextInput.addEventListener('input', () => {
+                const count = postTextInput.value.length;
+                document.getElementById('char-counter').textContent = `${count}/400`;
+            });
+            document.getElementById('post-submit-btn').addEventListener('click', () => {
+                const text = postTextInput.value.trim();
+                const tags = document.getElementById('post-tags').value;
+                if (text) {
+                    const author = isAdmin ? 'Gossip Girl' : 'Anônimo';
+                    addPost(author, text, tags);
+                    postTextInput.value = '';
+                    document.getElementById('post-tags').value = '';
+                    document.getElementById('char-counter').textContent = '0/400';
+                    renderFeed();
+                    showScreen('feed');
+                }
+            });
+            document.getElementById('post-back-btn').addEventListener('click', () => {
+                showScreen(telaAnterior)
+            });
+
+            // Tela de Feed
+            document.getElementById('feed-back-btn').addEventListener('click', () => showScreen('menu'));
+            document.getElementById('feed-new-post-btn').addEventListener('click', () => {
+                telaAnterior = 'feed';
+                document.getElementById('post-title').textContent = 'Nova Postagem como Gossip Girl';
+                showScreen('post');
+            });
+            document.getElementById('search-box').addEventListener('input', renderFeed);
+            
+            // Delegação de eventos para os botões de ação dos posts (que são dinâmicos)
+            document.getElementById('feed-container').addEventListener('click', (e) => {
+                const target = e.target;
+                if (!target.classList.contains('action-btn')) return;
+
+                const timestamp = parseInt(target.dataset.timestamp, 10);
+
+                if (target.classList.contains('like')) {
+                    likePost(timestamp);
+                    renderFeed();
+                } else if (target.classList.contains('report')) {
+                    reportPost(timestamp);
+                    renderFeed();
+                } else if (target.classList.contains('pin')) {
+                    togglePinPost(timestamp);
+                    renderFeed();
+                } else if (target.classList.contains('delete')) {
+                    if (confirm('Tem certeza que quer apagar este post?')) {
+                        deletePost(timestamp);
+                        renderFeed();
+                    }
+                }
+            });
+
+
+            // --- INICIALIZAÇÃO ---
+            runIntro();
+        });
+    </script>
+</body>
+</html>
